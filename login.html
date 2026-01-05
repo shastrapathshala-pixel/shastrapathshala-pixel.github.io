@@ -1,110 +1,56 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html>
 <head>
   <meta charset="UTF-8">
   <title>Login | ShastraPathshala</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body{
-      margin:0;
-      font-family: Segoe UI, sans-serif;
-      background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    }
-    .box{
-      max-width:380px;
-      margin:80px auto;
-      background:#fff;
-      padding:25px;
-      border-radius:16px;
-      box-shadow:0 10px 30px rgba(0,0,0,.35);
-      text-align:center;
-    }
-    h2{margin-bottom:15px;color:#333}
-    input{
-      width:100%;
-      padding:12px;
-      margin:8px 0;
-      border-radius:8px;
-      border:1px solid #ccc;
-      font-size:15px;
-    }
-    button{
-      width:100%;
-      padding:12px;
-      margin-top:10px;
-      border:none;
-      border-radius:8px;
-      font-size:16px;
-      cursor:pointer;
-    }
-    .login{background:#ff9800;color:#fff}
-    .register{background:#2c5364;color:#fff}
-    .msg{font-size:14px;margin-top:10px}
+    body{background:#203a43;font-family:Segoe UI}
+    .box{max-width:360px;margin:90px auto;background:#fff;padding:25px;border-radius:14px}
+    input,button{width:100%;padding:12px;margin:8px 0;border-radius:8px;border:1px solid #ccc}
+    button{background:#ff9800;color:#fff;border:none;font-size:16px}
+    a{display:block;text-align:center;margin-top:10px}
   </style>
 </head>
 
 <body>
-
 <div class="box">
-  <h2>Login / Register</h2>
+  <h2>Login</h2>
 
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
 
-  <button class="login" onclick="login()">Login</button>
-  <button class="register" onclick="register()">Register</button>
+  <button onclick="login()">Login</button>
 
-  <div class="msg" id="msg"></div>
+  <a href="register.html">New user? Register</a>
 </div>
 
-<!-- Firebase -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import { 
-    getAuth,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword
-  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCOV4uGzXeeRHHEwD0641F0tCCTYzXMFw",
-    authDomain: "shastrapathshalamtr.firebaseapp.com",
-    projectId: "shastrapathshalamtr",
-    storageBucket: "shastrapathshalamtr.appspot.com",
-    messagingSenderId: "713511766214",
-    appId: "1:713511766214:web:eb9622936e8de80521efc7"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyCCOV4uGzXeeRHHEwD0641F0tCCTYzXMFw",
+  authDomain: "shastrapathshalamtr.firebaseapp.com",
+  projectId: "shastrapathshalamtr",
+  storageBucket: "shastrapathshalamtr.appspot.com",
+  messagingSenderId: "713511766214",
+  appId: "1:713511766214:web:eb9622936e8de80521efc7"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-  window.login = async function(){
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    try{
-      await signInWithEmailAndPassword(auth, email, password);
-      alert("Login successful");
-      // yaha dashboard.html pe redirect kar sakte ho
-      // window.location.href = "dashboard.html";
-    }catch(e){
-      alert(e.message);
-    }
+window.login = async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  try{
+    await signInWithEmailAndPassword(auth,email,password);
+    alert("Login successful");
+  }catch(e){
+    alert(e.message);
   }
-
-  window.register = async function(){
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-
-    try{
-      await createUserWithEmailAndPassword(auth, email, password);
-      alert("Registration successful. Ab login karo.");
-    }catch(e){
-      alert(e.message);
-    }
-  }
+}
 </script>
-
 </body>
 </html>
