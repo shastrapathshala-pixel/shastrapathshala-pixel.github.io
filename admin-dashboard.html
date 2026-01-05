@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<title>Admin Dashboard | ShastraPathshala</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI, sans-serif;
+  background:#0f2027;
+  color:#fff;
+}
+.container{
+  max-width:420px;
+  margin:60px auto;
+  background:#fff;
+  color:#000;
+  border-radius:12px;
+  padding:25px;
+  text-align:center;
+}
+button{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+}
+.logout{background:#e53935;color:white;}
+.action{background:#2c5364;color:white;}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Admin Dashboard</h2>
+  <p>Welcome, Admin</p>
+
+  <button class="action">Students List</button>
+  <button class="action">Upload Notes</button>
+  <button class="action">Create Test</button>
+  <button class="action">Publish Result</button>
+
+  <button class="logout" onclick="logout()">Logout</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCCOV4uGzXeeRHHEwD0641F0tCCTYzXMFw",
+  authDomain: "shastrapathshalamtr.firebaseapp.com",
+  projectId: "shastrapathshalamtr",
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+window.logout = async function(){
+  await signOut(auth);
+  window.location.href="index.html";
+}
+</script>
+
+</body>
+</html>
