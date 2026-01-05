@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Upload Notes | ShastraPathshala</title>
+  <style>
+    body{
+      font-family: Arial;
+      background:#f4f6f8;
+    }
+    .box{
+      max-width:400px;
+      margin:40px auto;
+      background:white;
+      padding:20px;
+      border-radius:10px;
+    }
+    input, select, button{
+      width:100%;
+      padding:10px;
+      margin:8px 0;
+    }
+    button{
+      background:#ff9800;
+      color:white;
+      border:none;
+      cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Upload Notes</h2>
+
+  <input type="text" id="title" placeholder="Notes Title">
+
+  <select id="classSelect" onchange="handleClass()">
+    <option value="">Select Class</option>
+    <option value="10">Class 10</option>
+    <option value="12">Class 12</option>
+  </select>
+
+  <select id="streamSelect" style="display:none;">
+    <option value="">Select Stream</option>
+    <option value="science">Science</option>
+    <option value="arts">Arts</option>
+  </select>
+
+  <input type="text" id="fileUrl" placeholder="PDF / Notes Link">
+
+  <button onclick="uploadNotes()">Upload</button>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.handleClass = function(){
+    const cls = document.getElementById("classSelect").value;
+    document.getElementById("streamSelect").style.display =
+      cls === "12" ? "block" : "none";
+  }
+
+  window.uploadNotes = async function(){
+    const title = document.getElementById("title").value;
+    const cls = document.getElementById("classSelect").value;
+    const stream = document.getElementById("streamSelect").value;
+    const fileUrl = document.getElementById("fileUrl").value;
+
+    if(!title || !cls || !fileUrl){
+      alert("All fields required");
+      return;
+    }
+
+    await addDoc(collection(db,"notes"),{
+      title: title,
+      class: cls,
+      stream: cls === "12" ? stream : "",
+      fileUrl: fileUrl,
+      createdAt: serverTimestamp()
+    });
+
+    alert("Notes Uploaded");
+    document.querySelectorAll("input").forEach(i => i.value = "");
+  }
+</script>
+
+</body>
+</html>
