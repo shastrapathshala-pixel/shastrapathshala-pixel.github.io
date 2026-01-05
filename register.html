@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<title>Register | ShastraPathshala</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI, sans-serif;
+  background:#0f2027;
+}
+.box{
+  max-width:380px;
+  margin:60px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:12px;
+}
+h2{
+  text-align:center;
+}
+input, select, button{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+}
+button{
+  background:#ff9800;
+  border:none;
+  color:#fff;
+  font-size:16px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>Student Registration</h2>
+
+  <input type="text" id="name" placeholder="Full Name">
+  <input type="tel" id="phone" placeholder="Phone Number">
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+
+  <select id="studentClass" onchange="handleClassChange()">
+    <option value="">Select Class</option>
+    <option value="10">Class 10</option>
+    <option value="12">Class 12</option>
+  </select>
+
+  <select id="stream" style="display:none;">
+    <option value="">Select Stream</option>
+    <option value="science">Science</option>
+    <option value="arts">Arts</option>
+  </select>
+
+  <button onclick="register()">Register</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } 
+from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, serverTimestamp } 
+from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+/* 🔹 Firebase Config (SAME EVERYWHERE) */
+const firebaseConfig = {
+  apiKey: "AIzaSyCCOV4uGzXeeRHHEwD0641F0tCCTYzXMFw",
+  authDomain: "shastrapathshalamtr.firebaseapp.com",
+  projectId: "shastrapathshalamtr",
+  storageBucket: "shastrapathshalamtr.appspot.com",
+  messagingSenderId: "713511766214",
+  appId: "1:713511766214:web:eb9622936e8de80521efc7"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* 🔹 Class change logic */
+window.handleClassChange = function(){
+  const cls = document.getElementById("studentClass").value;
+  const streamBox = document.getElementById("stream");
+
+  if(cls === "12"){
+    streamBox.style.display = "block";
+  }else{
+    streamBox.style.display = "none";
+    streamBox.value = "";
+  }
+};
+
+/* 🔹 Register function */
+window.register = async function(){
+  try{
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const cls = document.getElementById("studentClass").value;
+    const stream = document.getElementById("stream").value;
+
+    if(!name || !phone || !email || !password || !cls){
+      alert("All fields are required");
+      return;
+    }
+
+    if(cls === "12" && !stream){
+      alert("Please select stream for Class 12");
+      return;
+    }
+
+    const userCred = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = userCred.user.uid;
+
+    await setDoc(doc(db, "users", uid), {
+      name: name,
+      phone: phone,
+      email: email,
+      class: cls,
+      stream: cls === "12" ? stream : "",
+      role: "student",
+      createdAt: serverTimestamp()
+    });
+
+    alert("Registration successful ✅");
+    window.location.href = "login.html";
+
+  }catch(err){
+    alert(err.message);
+  }
+};
+</script>
+
+</body>
+</html>
