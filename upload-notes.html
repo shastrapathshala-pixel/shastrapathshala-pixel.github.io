@@ -32,7 +32,11 @@
 <div class="box">
   <h2>Upload Notes</h2>
 
-  <input type="text" id="title" placeholder="Notes Title">
+  <input 
+  type="file" 
+  id="notesFile" 
+  accept=".pdf,.html" 
+  required
 
   <select id="classSelect" onchange="handleClass()">
     <option value="">Select Class</option>
@@ -45,8 +49,6 @@
     <option value="science">Science</option>
     <option value="arts">Arts</option>
   </select>
-
-  <input type="text" id="fileUrl" placeholder="PDF / Notes Link">
 
   <button onclick="uploadNotes()">Upload</button>
 </div>
