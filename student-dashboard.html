@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<title>Student Dashboard | ShastraPathshala</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI, sans-serif;
+  background:#0f2027;
+}
+.container{
+  max-width:420px;
+  margin:50px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:12px;
+  text-align:center;
+}
+h2{
+  margin-bottom:5px;
+}
+.info{
+  font-size:14px;
+  color:#555;
+  margin-bottom:20px;
+}
+button{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+  cursor:pointer;
+}
+.action{
+  background:#2c5364;
+  color:white;
+}
+.logout{
+  background:#e53935;
+  color:white;
+  margin-top:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2 id="studentName">Student</h2>
+  <div class="info" id="studentInfo"></div>
+
+  <button class="action" onclick="goTo('notes.html')">📘 Notes</button>
+  <button class="action" onclick="goTo('tests.html')">📝 Tests</button>
+  <button class="action" onclick="goTo('results.html')">📊 Results</button>
+  <button class="action" onclick="goTo('batches.html')">🎓 Batches</button>
+
+  <button class="logout" onclick="logout()">Logout</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } 
+from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } 
+from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+/* 🔹 Firebase Config (same everywhere) */
+const firebaseConfig = {
+  apiKey: "AIzaSyCCOV4uGzXeeRHHEwD0641F0tCCTYzXMFw",
+  authDomain: "shastrapathshalamtr.firebaseapp.com",
+  projectId: "shastrapathshalamtr",
+  storageBucket: "shastrapathshalamtr.appspot.com",
+  messagingSenderId: "713511766214",
+  appId: "1:713511766214:web:eb9622936e8de80521efc7"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* 🔐 Auth check */
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const snap = await getDoc(doc(db, "users", user.uid));
+  if (!snap.exists()) {
+    alert("Profile not found");
+    return;
+  }
+
+  const data = snap.data();
+  document.getElementById("studentName").innerText =
+    "Welcome, " + data.name;
+
+  document.getElementById("studentInfo").innerText =
+    "Class " + data.class + (data.stream ? " (" + data.stream + ")" : "");
+});
+
+/* 🔗 Navigation */
+window.goTo = function(page){
+  window.location.href = page;
+};
+
+/* 🚪 Logout */
+window.logout = async function(){
+  await signOut(auth);
+  window.location.href = "login.html";
+};
+</script>
+
+</body>
+</html>
