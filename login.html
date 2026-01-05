@@ -1,58 +1,21 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>Login | ShastraPathshala</title>
+<title>Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-body{
-  margin:0;
-  font-family:Segoe UI, sans-serif;
-  background:#0f2027;
-}
-.box{
-  max-width:360px;
-  margin:80px auto;
-  background:#fff;
-  padding:25px;
-  border-radius:12px;
-  text-align:center;
-}
-input{
-  width:100%;
-  padding:12px;
-  margin:10px 0;
-}
-button{
-  width:100%;
-  padding:12px;
-  background:#ff9800;
-  border:none;
-  color:white;
-  font-size:16px;
-  cursor:pointer;
-}
-</style>
 </head>
 
 <body>
 
-<div class="box">
-  <h2>Login</h2>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="login()">Login</button>
-</div>
+<h2>Login</h2>
+<input type="email" id="email" placeholder="Email"><br><br>
+<input type="password" id="password" placeholder="Password"><br><br>
+<button id="loginBtn">Login</button>
 
 <script type="module">
-  import { setPersistence, browserLocalPersistence } 
-from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-
-setPersistence(auth, browserLocalPersistence);
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCCOV4uGzXeeRHHEwD0641F0tCCTYzXMFw",
@@ -65,29 +28,18 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
 
-window.login = async function(){
-  try{
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+document.getElementById("loginBtn").addEventListener("click", async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-    const userCred = await signInWithEmailAndPassword(auth,email,password);
-    const uid = userCred.user.uid;
-
-    const snap = await getDoc(doc(db,"users",uid));
-    const role = snap.data().role;
-
-    if(role==="admin"){
-      window.location.href="admin-dashboard.html";
-    }else{
-      window.location.href="student-dashboard.html";
-    }
-
-  }catch(err){
-    alert(err.message);
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    alert("Login Success ✅");
+  } catch (e) {
+    alert(e.message);
   }
-}
+});
 </script>
 
 </body>
