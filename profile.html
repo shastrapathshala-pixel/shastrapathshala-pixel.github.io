@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Profile</title>
+</head>
+<body>
+
+<h2>My Profile</h2>
+
+<input type="text" id="name" placeholder="Full Name"><br><br>
+<input type="text" id="phone" placeholder="Phone Number"><br><br>
+
+<select id="class">
+  <option value="">Select Class</option>
+  <option value="10">Class 10</option>
+  <option value="12">Class 12</option>
+</select><br><br>
+
+<select id="stream" style="display:none">
+  <option value="">Select Stream</option>
+  <option value="science">Science</option>
+  <option value="arts">Arts</option>
+</select><br><br>
+
+<button onclick="saveProfile()">Save Profile</button>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  // apna firebase config
+};
+
+initializeApp(firebaseConfig);
+
+const auth = getAuth();
+const db = getFirestore();
+
+const classSelect = document.getElementById("class");
+const streamSelect = document.getElementById("stream");
+
+classSelect.addEventListener("change", () => {
+  if (classSelect.value === "12") {
+    streamSelect.style.display = "block";
+  } else {
+    streamSelect.style.display = "none";
+    streamSelect.value = "";
+  }
+});
+
+auth.onAuthStateChanged(async (user) => {
+  if (!user) return;
+
+  const ref = doc(db, "users", user.uid);
+  const snap = await getDoc(ref);
+
+  if (snap.exists()) {
+    const d = snap.data();
+    document.getElementById("name").value = d.name || "";
+    document.getElementById("phone").value = d.phone || "";
+    classSelect.value = d.class || "";
+
+    if (d.class === "12") {
+      streamSelect.style.display = "block";
+      streamSelect.value = d.stream || "";
+    }
+  }
+});
+
+window.saveProfile = async function () {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const cls = classSelect.value;
+  const stream = cls === "12" ? streamSelect.value : "";
+
+  if (cls === "12" && stream === "") {
+    alert("12th ke liye stream select karo");
+    return;
+  }
+
+  await updateDoc(doc(db, "users", user.uid), {
+    name: document.getElementById("name").value,
+    phone: document.getElementById("phone").value,
+    class: cls,
+    stream: stream
+  });
+
+  alert("Profile Saved");
+};
+</script>
+
+</body>
+</html>
