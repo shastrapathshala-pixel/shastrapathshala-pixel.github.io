@@ -2,13 +2,14 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Login</title>
+<title>Login | ShastraPathshala</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
 
 <h2>Login</h2>
+
 <input type="email" id="email" placeholder="Email"><br><br>
 <input type="password" id="password" placeholder="Password"><br><br>
 <button id="loginBtn">Login</button>
@@ -16,6 +17,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCCOV4uGzXeeRHHEwD0641F0tCCTYzXMFw",
@@ -28,14 +30,31 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 document.getElementById("loginBtn").addEventListener("click", async () => {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
   try {
-    await signInWithEmailAndPassword(auth, email, password);
-    alert("Login Success ✅");
+    const email = email.value;
+    const password = password.value;
+
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const uid = cred.user.uid;
+
+    const snap = await getDoc(doc(db, "users", uid));
+
+    if (!snap.exists()) {
+      alert("User profile not found");
+      return;
+    }
+
+    const role = snap.data().role;
+
+    if (role === "admin") {
+      window.location.href = "admin-dashboard.html";
+    } else {
+      window.location.href = "student-dashboard.html";
+    }
+
   } catch (e) {
     alert(e.message);
   }
