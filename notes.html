@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<title>Notes | ShastraPathshala</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI, sans-serif;
+  background:#0f2027;
+}
+.container{
+  max-width:520px;
+  margin:40px auto;
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+}
+.note{
+  border:1px solid #ddd;
+  padding:12px;
+  border-radius:8px;
+  margin-bottom:10px;
+}
+.note h4{
+  margin:0 0 5px;
+}
+.note button{
+  padding:6px 12px;
+  border:none;
+  border-radius:5px;
+  background:#2c5364;
+  color:white;
+  cursor:pointer;
+}
+.locked{
+  color:#e53935;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>📘 Notes</h2>
+  <div id="notesList">Loading...</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getFirestore, collection, query, where, getDocs, doc, getDoc } 
+from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+/* 🔹 Firebase Config */
+const firebaseConfig = {
+  apiKey: "AIzaSyCCOV4uGzXeeRHHEwD0641F0tCCTYzXMFw",
+  authDomain: "shastrapathshalamtr.firebaseapp.com",
+  projectId: "shastrapathshalamtr",
+  storageBucket: "shastrapathshalamtr.appspot.com",
+  messagingSenderId: "713511766214",
+  appId: "1:713511766214:web:eb9622936e8de80521efc7"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const notesList = document.getElementById("notesList");
+
+/* 🔗 Read batchId */
+const params = new URLSearchParams(window.location.search);
+const batchId = params.get("batchId");
+
+if(!batchId){
+  notesList.innerHTML = "<p class='locked'>Invalid batch</p>";
+}
+
+/* 🔐 Auth + Load Notes */
+onAuthStateChanged(auth, async (user) => {
+  if(!user){
+    window.location.href = "login.html";
+    return;
+  }
+
+  // Student profile
+  const userSnap = await getDoc(doc(db, "users", user.uid));
+  if(!userSnap.exists()){
+    notesList.innerHTML = "<p class='locked'>Profile not found</p>";
+    return;
+  }
+
+  const student = userSnap.data();
+
+  // Query notes (batch + class + stream)
+  const q = query(
+    collection(db, "notes"),
+    where("batchId", "==", batchId),
+    where("class", "==", student.class),
+    where("stream", "in", ["", student.stream || ""])
+  );
+
+  const snapshot = await getDocs(q);
+
+  if(snapshot.empty){
+    notesList.innerHTML = "<p>No notes available</p>";
+    return;
+  }
+
+  notesList.innerHTML = "";
+
+  snapshot.forEach(docSnap => {
+    const note = docSnap.data();
+
+    const div = document.createElement("div");
+    div.className = "note";
+
+    div.innerHTML = `
+      <h4>${note.title}</h4>
+      <div>Subject: ${note.subject}</div>
+      <button onclick="openNote('${note.fileUrl}')">Open</button>
+    `;
+
+    notesList.appendChild(div);
+  });
+});
+
+/* 🔗 Open note */
+window.openNote = function(url){
+  window.open(url, "_blank");
+};
+</script>
+
+</body>
+</html>
