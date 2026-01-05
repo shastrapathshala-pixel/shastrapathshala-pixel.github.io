@@ -46,64 +46,48 @@ button{
 </div>
 
 <script type="module">
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import { 
-    getAuth, 
-    signInWithEmailAndPassword, 
-    setPersistence, 
-    browserLocalPersistence 
-  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+  import { setPersistence, browserLocalPersistence } 
+from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCOV4uGzXeeRHHEwD0641F0tCCTYzXMFw",
-    authDomain: "shastrapathshalamtr.firebaseapp.com",
-    projectId: "shastrapathshalamtr",
-    storageBucket: "shastrapathshalamtr.appspot.com",
-    messagingSenderId: "713511766214",
-    appId: "1:713511766214:web:eb9622936e8de80521efc7"
-  };
+setPersistence(auth, browserLocalPersistence);
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+const firebaseConfig = {
+  apiKey: "AIzaSyCCOV4uGzXeeRHHEwD0641F0tCCTYzXMFw",
+  authDomain: "shastrapathshalamtr.firebaseapp.com",
+  projectId: "shastrapathshalamtr",
+  storageBucket: "shastrapathshalamtr.appspot.com",
+  messagingSenderId: "713511766214",
+  appId: "1:713511766214:web:eb9622936e8de80521efc7"
+};
 
-  // ✅ LOGIN SESSION KO PERSISTENT BANAYA
-  setPersistence(auth, browserLocalPersistence);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  window.login = async function(){
-    try{
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
+window.login = async function(){
+  try{
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-      if(!email || !password){
-        alert("Email aur password dono bharo");
-        return;
-      }
+    const userCred = await signInWithEmailAndPassword(auth,email,password);
+    const uid = userCred.user.uid;
 
-      const userCred = await signInWithEmailAndPassword(auth, email, password);
-      const uid = userCred.user.uid;
+    const snap = await getDoc(doc(db,"users",uid));
+    const role = snap.data().role;
 
-      const snap = await getDoc(doc(db, "users", uid));
-
-      if(!snap.exists()){
-        alert("User profile Firestore me nahi mila");
-        return;
-      }
-
-      const role = snap.data().role;
-
-      if(role === "admin"){
-        window.location.href = "admin-dashboard.html";
-      }else{
-        window.location.href = "student-dashboard.html";
-      }
-
-    }catch(err){
-      alert(err.message);
+    if(role==="admin"){
+      window.location.href="admin-dashboard.html";
+    }else{
+      window.location.href="student-dashboard.html";
     }
+
+  }catch(err){
+    alert(err.message);
   }
+}
 </script>
 
 </body>
