@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
 <meta charset="UTF-8">
 <title>Register | ShastraPathshala</title>
@@ -8,28 +8,29 @@
 <style>
 body{
   margin:0;
-  font-family: Arial, sans-serif;
-  background:#203a43;
+  font-family:Segoe UI, sans-serif;
+  background:#0f2027;
 }
 .box{
-  max-width:400px;
-  margin:80px auto;
+  max-width:360px;
+  margin:70px auto;
   background:#fff;
   padding:25px;
-  border-radius:10px;
+  border-radius:12px;
   text-align:center;
 }
-input, select, button{
+input, select{
   width:100%;
   padding:12px;
-  margin:8px 0;
-  font-size:16px;
+  margin:10px 0;
 }
 button{
+  width:100%;
+  padding:12px;
   background:#ff9800;
-  color:#fff;
   border:none;
-  border-radius:6px;
+  color:white;
+  font-size:16px;
   cursor:pointer;
 }
 </style>
@@ -38,79 +39,84 @@ button{
 <body>
 
 <div class="box">
-  <h2>Student Registration</h2>
+  <h2>Register</h2>
 
   <input type="text" id="name" placeholder="Full Name">
   <input type="email" id="email" placeholder="Email">
   <input type="password" id="password" placeholder="Password">
 
-  <select id="class">
-    <option value="">Select Class</option>
-    <option value="10">Class 10</option>
-    <option value="12">Class 12</option>
-  </select>
-
-  <select id="stream">
-    <option value="">Select Stream</option>
-    <option value="science">Science</option>
-    <option value="arts">Arts</option>
+  <select id="role">
+    <option value="">Select Role</option>
+    <option value="student">Student</option>
+    <option value="admin">Admin</option>
   </select>
 
   <button onclick="register()">Register</button>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import { 
+    getAuth, 
+    createUserWithEmailAndPassword 
+  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+  import { 
+    getFirestore, 
+    doc, 
+    setDoc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "XXXX",
-  appId: "XXXX"
-};
+  // 🔹 FINAL & CORRECT Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCOV4uGzXeeRHHEwD0641F0tCCTYzXMFw",
+    authDomain: "shastrapathshalamtr.firebaseapp.com",
+    projectId: "shastrapathshalamtr",
+    storageBucket: "shastrapathshalamtr.appspot.com",
+    messagingSenderId: "713511766214",
+    appId: "1:713511766214:web:eb9622936e8de80521efc7"
+  };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-window.register = async function () {
+  // 🔹 Register Function
+  window.register = async function(){
+    try{
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const role = document.getElementById("role").value;
 
-  const name = document.getElementById("name").value;
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const cls = document.getElementById("class").value;
-  const stream = document.getElementById("stream").value;
+      if(!name || !email || !password || !role){
+        alert("Sab field bharo");
+        return;
+      }
 
-  if(!name || !email || !password || !cls){
-    alert("All fields required");
-    return;
+      const userCred = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      const uid = userCred.user.uid;
+
+      // 🔹 Firestore me user save
+      await setDoc(doc(db, "users", uid), {
+        name: name,
+        email: email,
+        role: role,
+        createdAt: serverTimestamp()
+      });
+
+      alert("Registration Successful ✅");
+      window.location.href = "login.html";
+
+    }catch(err){
+      alert(err.message);
+    }
   }
-
-  try{
-    const userCred = await createUserWithEmailAndPassword(auth, email, password);
-    const uid = userCred.user.uid;
-
-    await setDoc(doc(db, "users", uid), {
-      name: name,
-      email: email,
-      role: "student",
-      class: cls,
-      stream: cls === "12" ? stream : "",
-      status: "active",
-      createdAt: serverTimestamp()
-    });
-
-    alert("Registration Successful");
-    window.location.href = "login.html";
-
-  }catch(err){
-    alert(err.message);
-  }
-}
 </script>
 
 </body>
