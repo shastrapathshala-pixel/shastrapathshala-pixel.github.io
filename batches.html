@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<title>Available Batches | ShastraPathshala</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI, sans-serif;
+  background:#0f2027;
+}
+.container{
+  max-width:500px;
+  margin:40px auto;
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+}
+.batch{
+  border:1px solid #ddd;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:12px;
+}
+.batch h3{
+  margin:0 0 5px;
+}
+.price{
+  color:#2c5364;
+  font-weight:bold;
+}
+button{
+  padding:8px 14px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  margin-top:8px;
+}
+.buy{ background:#ff9800; color:#fff; }
+.locked{ background:#ccc; cursor:not-allowed; }
+.note{
+  font-size:13px;
+  color:#e53935;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Available Batches</h2>
+  <div id="batchList">Loading...</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+/* 🔹 Firebase Config (SAME AS EVERYWHERE) */
+const firebaseConfig = {
+  apiKey: "AIzaSyCCOV4uGzXeeRHHEwD0641F0tCCTYzXMFw",
+  authDomain: "shastrapathshalamtr.firebaseapp.com",
+  projectId: "shastrapathshalamtr",
+  storageBucket: "shastrapathshalamtr.appspot.com",
+  messagingSenderId: "713511766214",
+  appId: "1:713511766214:web:eb9622936e8de80521efc7"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const batchListDiv = document.getElementById("batchList");
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  // 🔹 Get student profile
+  const userSnap = await getDoc(doc(db, "users", user.uid));
+  if (!userSnap.exists()) {
+    alert("Student profile not found");
+    return;
+  }
+
+  const studentClass = userSnap.data().class;
+  const studentStream = userSnap.data().stream;
+
+  loadBatches(studentClass, studentStream);
+});
+
+async function loadBatches(studentClass, studentStream){
+  batchListDiv.innerHTML = "";
+
+  const snapshot = await getDocs(collection(db, "batches"));
+
+  snapshot.forEach(docSnap => {
+    const batch = docSnap.data();
+
+    const isAllowed =
+      batch.class === studentClass &&
+      (batch.stream === "" || batch.stream === studentStream);
+
+    const div = document.createElement("div");
+    div.className = "batch";
+
+    div.innerHTML = `
+      <h3>${batch.batchName}</h3>
+      <div class="price">₹ ${batch.price}</div>
+      ${
+        isAllowed
+          ? `<button class="buy" onclick="openBatch('${docSnap.id}')">Buy / Access</button>`
+          : `<div class="note">Only for Class ${batch.class} students</div>
+             <button class="locked">Locked 🔒</button>`
+      }
+    `;
+
+    batchListDiv.appendChild(div);
+  });
+
+  if (batchListDiv.innerHTML === "") {
+    batchListDiv.innerHTML = "No batches available";
+  }
+}
+
+window.openBatch = function(batchId){
+  // 🔒 Final security check batch page par bhi hoga
+  window.location.href = "batch-details.html?batchId=" + batchId;
+};
+</script>
+
+</body>
+</html>
