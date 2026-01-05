@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<title>Login | ShastraPathshala</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI, sans-serif;
+  background:#0f2027;
+}
+.box{
+  max-width:360px;
+  margin:80px auto;
+  background:#fff;
+  padding:25px;
+  border-radius:12px;
+}
+h2{
+  text-align:center;
+}
+input, button{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+}
+button{
+  background:#ff9800;
+  border:none;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>Login</h2>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  setPersistence, 
+  browserLocalPersistence 
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } 
+from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+/* 🔹 SAME Firebase Config (everywhere) */
+const firebaseConfig = {
+  apiKey: "AIzaSyCCOV4uGzXeeRHHEwD0641F0tCCTYzXMFw",
+  authDomain: "shastrapathshalamtr.firebaseapp.com",
+  projectId: "shastrapathshalamtr",
+  storageBucket: "shastrapathshalamtr.appspot.com",
+  messagingSenderId: "713511766214",
+  appId: "1:713511766214:web:eb9622936e8de80521efc7"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* 🔹 Session persistent */
+setPersistence(auth, browserLocalPersistence);
+
+/* 🔹 Login function */
+window.login = async function(){
+  try{
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if(!email || !password){
+      alert("Email aur password dono bharo");
+      return;
+    }
+
+    const userCred = await signInWithEmailAndPassword(auth, email, password);
+    const uid = userCred.user.uid;
+
+    const snap = await getDoc(doc(db, "users", uid));
+    if(!snap.exists()){
+      alert("User profile not found");
+      return;
+    }
+
+    const role = snap.data().role;
+
+    if(role === "admin"){
+      window.location.href = "admin-dashboard.html";
+    }else{
+      window.location.href = "student-dashboard.html";
+    }
+
+  }catch(err){
+    alert(err.message);
+  }
+};
+</script>
+
+</body>
+</html>
