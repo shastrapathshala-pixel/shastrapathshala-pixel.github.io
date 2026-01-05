@@ -1,75 +1,81 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <title>Register | ShastraPathshala</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<title>Register | ShastraPathshala</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body{
-      font-family: Arial, sans-serif;
-      background:#203a43;
-    }
-    .box{
-      max-width:380px;
-      margin:60px auto;
-      background:#fff;
-      padding:25px;
-      border-radius:10px;
-      text-align:center;
-    }
-    input, button{
-      width:100%;
-      padding:12px;
-      margin:8px 0;
-    }
-    button{
-      background:#ff9800;
-      border:none;
-      color:white;
-      font-size:16px;
-      cursor:pointer;
-    }
-  </style>
+<style>
+body{
+  font-family:Segoe UI,sans-serif;
+  background:#0f2027;
+  color:#fff;
+}
+.box{
+  max-width:400px;
+  margin:60px auto;
+  background:#fff;
+  color:#000;
+  padding:25px;
+  border-radius:12px;
+}
+input,button{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+}
+button{
+  background:#2c5364;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+}
+</style>
 </head>
-<body>
 
+<body>
 <div class="box">
-  <h2>Student Registration</h2>
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button onclick="register()">Register</button>
-  <p><a href="login.html">Already registered? Login</a></p>
+<h2>Register</h2>
+
+<input type="email" id="email" placeholder="Email">
+<input type="password" id="password" placeholder="Password">
+<button onclick="register()">Register</button>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCCOV4uGzXeeRHHEwD0641F0tCCTYzXMFw",
-    authDomain: "shastrapathshalamtr.firebaseapp.com",
-    projectId: "shastrapathshalamtr",
-    storageBucket: "shastrapathshalamtr.appspot.com",
-    messagingSenderId: "713511766214",
-    appId: "1:713511766214:web:eb9622936e8de80521efc7"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyCCOV4uGzXeeRHHEwD0641F0tCCTYzXMFw",
+  authDomain: "shastrapathshalamtr.firebaseapp.com",
+  projectId: "shastrapathshalamtr",
+  storageBucket: "shastrapathshalamtr.appspot.com",
+  messagingSenderId: "713511766214",
+  appId: "1:713511766214:web:eb9622936e8de80521efc7"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  window.register = function () {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+window.register = async function(){
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-    createUserWithEmailAndPassword(auth, email, password)
-      .then(() => {
-        alert("Registration successful");
-        window.location.href = "login.html";
-      })
-      .catch(error => alert(error.message));
-  }
+  const userCred = await createUserWithEmailAndPassword(auth,email,password);
+
+  const role = email === "shastrapathshala@gmail.com" ? "admin" : "student";
+
+  await setDoc(doc(db,"users",userCred.user.uid),{
+    email,
+    role
+  });
+
+  alert("Registration successful");
+  window.location.href="login.html";
+}
 </script>
-
 </body>
 </html>
